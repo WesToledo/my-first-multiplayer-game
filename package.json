@@ -4,7 +4,8 @@
   "description": "My first attempt to create some game in p5.js",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "author": "Wesley Toledo",
   "license": "MIT",
