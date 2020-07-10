@@ -13,7 +13,7 @@ function setup() {
   arrowListener.registerPlayerId("wesley");
   arrowListener.subscribe(game.changePlayerDirection);
 
-  setInterval(game.addFruit, 1500);
+  setInterval(game.addFruit, 3000);
 }
 
 function draw() {

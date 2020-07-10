@@ -1,8 +1,23 @@
+function useConstrain(num, min, max) {
+  const MIN = min || 0;
+  const MAX = max;
+  return Math.min(Math.max(num, MIN), MAX);
+}
+
 function createGame(grid) {
+  const LEFT_ARROW = 37;
+  const UP_ARROW = 38;
+  const RIGHT_ARROW = 39;
+  const DOWN_ARROW = 40;
+
   const state = {
     players: {},
     fruits: {},
     grid: grid,
+    screen: {
+      width: 400,
+      height: 400,
+    },
   };
 
   function addPlayer(command) {
@@ -22,6 +37,8 @@ function createGame(grid) {
   function movePlayer(command) {
     const playerId = command.playerId;
     const player = state.players[playerId];
+
+    console.log(player);
 
     const acceptedMoves = {
       [RIGHT_ARROW]: () => {
@@ -44,13 +61,19 @@ function createGame(grid) {
       }
     }
 
-    player.tail[player.size - 1] = createVector(player.x, player.y);
+    if (player.size >= 1) {
+      player.tail[player.size - 1] = createVector(player.x, player.y);
+    }
 
     //execute the to move
     acceptedMoves[player.direction]();
 
-    player.x = constrain(player.x, 0, width - state.grid);
-    player.y = constrain(player.y, 0, height - state.grid);
+    checkForCollisions({ playerId: playerId });
+
+    player.x = useConstrain(player.x, 0, state.screen.width - state.grid);
+    player.y = useConstrain(player.y, 0, state.screen.height - state.grid);
+
+    console.log(player.x, player.y);
   }
 
   function changePlayerDirection(command) {
@@ -59,10 +82,9 @@ function createGame(grid) {
 
   function killPlayer(command) {
     const playerId = command.playerId;
-    const player = state.players[playerId];
 
-    player.size = 0;
-    player.tail = [];
+    state.players[playerId].size = 0;
+    state.players[playerId].tail = [];
   }
 
   function checkForCollisions(command) {
@@ -75,12 +97,19 @@ function createGame(grid) {
 
       if (fruit.x === player.x && fruit.y === player.y) {
         player.size++;
+        console.log(`Player ${playerId} colide to fruit`);
         removeFruit({ fruitId: fruitId });
       }
     }
 
     // border collision
-    if (player.x >= width - state.grid || player.y >= height - state.grid) {
+    if (
+      player.x >= state.screen.width ||
+      player.y >= state.screen.height ||
+      player.x < 0 ||
+      player.y < 0
+    ) {
+      console.log("Border Collision");
       killPlayer({ playerId: playerId });
     }
   }
@@ -88,10 +117,18 @@ function createGame(grid) {
   function addFruit(command) {
     const fruitId = command
       ? command.fruitId
-      : Math.floor(Math.random() * 100000);
+      : Math.floor(Math.random() * 1000000);
 
-    const fruitX = floor(random(10, width / 10)) * 10;
-    const fruitY = floor(random(10, height / 10)) * 10;
+    const fruitX = useConstrain(
+      Math.floor(Math.random() * (state.screen.width / 10)) * 10,
+      0,
+      state.screen.width - state.grid
+    );
+    const fruitY = useConstrain(
+      Math.floor(Math.random() * (state.screen.height / 10)) * 10,
+      0,
+      state.screen.height - state.grid
+    );
 
     state.fruits[fruitId] = new Fruit(fruitX, fruitY);
   }
@@ -101,7 +138,7 @@ function createGame(grid) {
     delete state.fruits[fruitId];
   }
 
-  function Fruit(x,y) {
+  function Fruit(x, y) {
     this.x = x;
     this.y = y;
 
@@ -158,3 +195,5 @@ function createGame(grid) {
     checkForCollisions,
   };
 }
+
+module.exports = createGame;

@@ -1,26 +1,32 @@
 function renderScreen(game) {
   const grid = game.state.grid;
 
-  function showPlayer(player){
+  function showPlayer(player) {
     // render tail
     fill(255);
     for (let i = 0; i < player.tail.length; i++) {
-      rect(player.tail[i].x, player.tail[i].y, grid, grid);
+      const x = player.tail[i].x;
+      const y = player.tail[i].y;
+        rect(x, y, grid, grid);
     }
     fill(255);
     rect(player.x, player.y, grid, grid);
   }
-
+  
+  var count = 0;
   for (const fruitId in game.state.fruits) {
+
     const fruit = game.state.fruits[fruitId];
     fruit.show();
+    count++
   }
+
+  console.log("count", count)
 
   // render players
   for (const playerId in game.state.players) {
-    const player = game.state.players[playerId];
     game.movePlayer({ playerId: playerId });
-    game.checkForCollisions({ playerId: playerId });
+    const player = game.state.players[playerId];
     showPlayer(player);
   }
 }
